@@ -6,6 +6,9 @@ import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +18,9 @@ import java.util.logging.Logger;
  * Класс с одним статическим методом для инициализации бота на сервере.
  * Все переменные передаются в сервис и оперируются в нем.
  */
+
+@Getter
+@Setter
 @Component
 public class BotInitializer {
 
@@ -39,6 +45,7 @@ public class BotInitializer {
     /**
      * Метод инициализации. Все сделано по документации VK API.
      */
+    @PostConstruct
     public static void init() {
         try {
             api = new VkApiClient(new HttpTransportClient());

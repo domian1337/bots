@@ -12,6 +12,7 @@ import com.vk.api.sdk.queries.messages.MessagesGetLongPollHistoryQuery;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +34,7 @@ public class VKBotService {
         VKBotService.api = api;
         VKBotService.actor = actor;
         VKBotService.ts = ts;
+        start();
     }
 
     public VKBotService() {
@@ -51,15 +53,13 @@ public class VKBotService {
                 messages.forEach(message -> {
                     try {
                         LOGGER.info("[NEW MESSAGE] " + message.getText());
-                        var text = message.getText();
+                        Optional<String> textO = Optional.ofNullable(message.getText());
+                        var text = textO.orElseThrow(() -> new RuntimeException("Текст сообщения не найден"));
                         var textForSwitch = text.toLowerCase();
-                        if (text == null) {
-                            return;
-                        }
                         var appeal = bot.getAppeal(message, message.getFromId());
                         switch (textForSwitch) {
                             case "привет" -> bot.sendMessage(message, "Добро пожаловть, " + appeal);
-                            case "я карина" -> bot.sendMessage(message, "Привет солнышко XD");
+                            // case "новый аккаунт" -> createNewCRMClient();
                             default -> bot.sendMessage(message, "Вы написали " + text);
                         }
                     } catch (Exception e) {
@@ -76,7 +76,8 @@ public class VKBotService {
 
     /**
      * Информация о профилях нескольких профилей
-     * @param ids список id
+     *
+     * @param ids    список id
      * @param fields поля профиля пользователя
      * @return List c профилями
      */
@@ -98,7 +99,8 @@ public class VKBotService {
 
     /**
      * Информация о профиле одного пользователя
-     * @param id id пользователя
+     *
+     * @param id     id пользователя
      * @param fields поля профиля пользователя
      * @return профиль пользователя
      */
@@ -110,8 +112,9 @@ public class VKBotService {
 
     /**
      * Создание обращения к профилю пользователя
+     *
      * @param message полученное сообщение
-     * @param userId id отправителя сообщения
+     * @param userId  id отправителя сообщения
      * @return сформированное обращение
      */
     public String getAppeal(Message message, long userId) {
@@ -124,8 +127,9 @@ public class VKBotService {
 
     /**
      * Метод отправки сообщения в чат
-     * @param message полученное сообщение
-     * @param text текст сообщения
+     *
+     * @param message     полученное сообщение
+     * @param text        текст сообщения
      * @param attachments вложение (аудио, фото, видео)
      * @return возвращаем true если успешно
      */
@@ -137,7 +141,7 @@ public class VKBotService {
                     .userId(message.getFromId())
                     .randomId(rand.nextInt(1000))
                     .execute();
-            LOGGER.log(Level.INFO, "Отправлено сообщение: " + text);
+            LOGGER.log(Level.INFO, "[Отправлено сообщение]: " + text);
         } catch (ApiException | ClientException e) {
             LOGGER.log(Level.WARNING, "Ошибка отправки сообщения");
             System.out.println(e.getMessage());
